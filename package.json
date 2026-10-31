@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {"start": "node src/server.js", "dev": "node --watch src/server.js"},
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -14,5 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
     "multer": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
