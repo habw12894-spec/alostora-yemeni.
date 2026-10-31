@@ -127,6 +127,12 @@ body{background:radial-gradient(ellipse at 50% 0%,#283b59 0,transparent 38%),rad
 
 .auth-tabs{display:flex;gap:8px;margin:12px 0 16px}.auth-tab{flex:1;border:1px solid var(--line);border-radius:11px;padding:11px;background:#0d1727;color:var(--muted)}.auth-tab.active{border-color:#a17a29;background:#302918;color:var(--gold2)}.account-box label[hidden]{display:none!important}
 </style>
+
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#111318">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 <header class="topbar">
@@ -215,7 +221,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#283b59 0,transparent 38%),rad
         <button onclick="toast('تم حفظ المقطع في نموذج المحفوظات')">♧<small>حفظ</small></button>
       </div>
       <div class="video-navhint">اسحب للأعلى للمقطع التالي</div>
-      <div class="video-caption"><strong id="videoAuthor">@الأسطورة_اليمني ✓</strong><p id="videoDescription">اليمن… جمال يحكي قصة حضارة ❤️🇾🇪</p><small>♫ الصوت الأصلي · افنكس</small></div>
+      <div class="video-caption"><strong id="videoAuthor">@AVNEX_YEMEN ✓</strong><p id="videoDescription">اليمن… جمال يحكي قصة حضارة ❤️🇾🇪</p><small>♫ الصوت الأصلي · افنكس</small></div>
       <div class="video-bottom"><div class="video-progress"><span id="videoProgress"></span></div><div class="video-bottom-row"><span id="videoCounter">المقطع 1 من 3 · نموذج تجريبي</span><button onclick="toggleVideoPause(this)">Ⅱ</button></div></div>
     </div>
   </div>
@@ -257,7 +263,7 @@ function applySearch(){const q=document.getElementById('searchInput').value.trim
 document.getElementById('searchInput').addEventListener('input',applySearch);
 
 const demoClips=[
- {title:'اليمن 🇾🇪',subtitle:'أرض التاريخ والحضارة',author:'@الأسطورة_اليمني',desc:'اليمن… جمال يحكي قصة حضارة ❤️🇾🇪'},
+ {title:'اليمن 🇾🇪',subtitle:'أرض التاريخ والحضارة',author:'@AVNEX_YEMEN',desc:'اليمن… جمال يحكي قصة حضارة ❤️🇾🇪'},
  {title:'صنعاء القديمة',subtitle:'حكايات من قلب التاريخ',author:'@عدسة_اليمن',desc:'بين النوافذ المزخرفة والبيوت العتيقة، لكل زاوية حكاية ✨'},
  {title:'سواحل اليمن',subtitle:'جمال على مدّ البصر',author:'@رحّال_يمني',desc:'من الجبال إلى البحر… اليمن مليء بالمفاجآت 🌊'}
 ];
@@ -293,6 +299,10 @@ document.querySelectorAll('#feed .post').forEach((post,i)=>{post.dataset.postid=
 const baseLikePost=likePost;
 likePost=function(btn){baseLikePost(btn);const post=btn.closest('.post');const state=JSON.parse(localStorage.getItem('alostoraDemoLikes')||'{}');state[post.dataset.postid||'user-'+Date.now()]=btn.classList.contains('liked');localStorage.setItem('alostoraDemoLikes',JSON.stringify(state))};
 
+</script>
+
+<script>
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {})); }
 </script>
 </body>
 </html>
