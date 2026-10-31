@@ -1,13 +1,38 @@
 {
+  "id": "/",
   "name": "افنكس AVNEX",
   "short_name": "AVNEX",
-  "description": "منصة الفيديوهات القصيرة والتواصل الاجتماعي",
+  "description": "منصة افنكس للفيديوهات القصيرة والتواصل الاجتماعي",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#111318",
-  "theme_color": "#111318",
-  "icons": []
+  "orientation": "portrait",
+  "background_color": "#10131b",
+  "theme_color": "#10131b",
+  "categories": [
+    "social",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
