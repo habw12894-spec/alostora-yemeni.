@@ -5,7 +5,7 @@
 ## الموجود في الحزمة
 - واجهة الويب الحالية في `public/index.html`، مع هوية AVNEX.
 - خلفية الهوية البصرية في `public/assets/avnex-splash.png`.
-- دعم التثبيت كتطبيق ويب (PWA) عبر `manifest.webmanifest` و`sw.js`.
+- دعم التثبيت كتطبيق اندرويد (APK) عبر `manifest.webmanifest` و`sw.js`.
 - خادم Express ومسارات أولية للتسجيل والدخول والملف الشخصي ورفع الفيديو والتعليقات والإعجابات والمتابعة والبلاغات.
 - مخطط PostgreSQL في `sql/schema.sql`.
 
