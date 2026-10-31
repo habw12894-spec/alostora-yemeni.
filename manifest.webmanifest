@@ -1,0 +1,13 @@
+{
+  "name": "افنكس AVNEX",
+  "short_name": "AVNEX",
+  "description": "منصة الفيديوهات القصيرة والتواصل الاجتماعي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111318",
+  "theme_color": "#111318",
+  "icons": []
+}
