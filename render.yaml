@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: avnex-web
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        fromDatabase:
+          name: avnex-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_SSL
+        value: "false"
+      - key: MAX_VIDEO_MB
+        value: "100"
+      - key: UPLOAD_DIR
+        value: uploads
+
+databases:
+  - name: avnex-db
+    plan: free
+    databaseName: avnex
+    user: avnex_user
