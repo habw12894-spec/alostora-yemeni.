@@ -234,15 +234,15 @@ body{background:radial-gradient(ellipse at 50% 0%,#283b59 0,transparent 38%),rad
   <div class="account-emblem">✦</div>
   <h2 id="accountHeading">انضم إلى افنكس</h2>
   <p>أنشئ ملفك الشخصي وابدأ مشاركة حكاياتك.</p>
-  <label>اسم العرض<input id="accountName" placeholder="اكتب اسمك"></label>
   <div class="auth-tabs" role="tablist" aria-label="طريقة التسجيل"><button type="button" class="auth-tab active" onclick="setAuthMode('phone',this)">📱 رقم الهاتف</button><button type="button" class="auth-tab" onclick="setAuthMode('email',this)">📧 البريد الإلكتروني</button></div>
   <label>اسم العرض<input id="accountName" autocomplete="name" placeholder="اكتب اسمك"></label>
   <label>اسم المستخدم<input id="accountHandle" autocomplete="username" placeholder="مثال: avnex"></label>
   <label id="phoneField">رقم الهاتف<input id="accountPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="مثال: 7xxxxxxxx"></label>
   <label id="emailField" hidden>البريد الإلكتروني<input id="accountEmail" type="email" autocomplete="email" placeholder="name@example.com"></label>
   <label>كلمة المرور<input id="accountPassword" type="password" autocomplete="new-password" minlength="8" placeholder="8 أحرف على الأقل"></label>
-  <button class="goldbtn account-submit" onclick="demoAccountAction()">إنشاء حساب تجريبي</button>
-  <small>هذه نسخة واجهة تجريبية تحفظ بيانات الملف محليًا على هذا الجهاز فقط. لا ترسل رمز SMS أو بريد تحقق حقيقيًا، ولا تستخدم كلمة مرور حقيقية هنا. يلزم خادم آمن لتفعيل الحسابات الفعلية.</small>
+  <button class="goldbtn account-submit" onclick="demoAccountAction()">إنشاء حساب</button>
+  <button type="button" class="softbtn" id="avnexAuthSwitch" onclick="toggleAvnexAuthMode()">لديك حساب؟ تسجيل الدخول</button>
+  <small id="avnexAuthNote">التسجيل الفعلي متاح بالبريد الإلكتروني عبر Supabase. تفعيل التسجيل برقم الهاتف يتطلب إعداد مزود SMS.</small>
  </div>
 </section>
 <input id="videoFileInput" type="file" accept="video/*" hidden>
@@ -304,5 +304,116 @@ likePost=function(btn){baseLikePost(btn);const post=btn.closest('.post');const s
 <script>
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {})); }
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* AVNEX Supabase integration. Publishable keys are intended for client use;
+   database access is still protected by Row Level Security policies. */
+(function(){
+  const SUPABASE_URL = 'https://kfzjiixqfebolozfxcxk.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4SdA22tY894qWj-fHwGCRQ_kjOHvaU_';
+  if (!window.supabase || !window.supabase.createClient) {
+    console.error('Supabase SDK failed to load');
+    return;
+  }
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  window.avnexSupabase = client;
+  let loginMode = false;
+  let authMethod = 'email';
+
+  function notify(message){ if(typeof window.toast==='function') window.toast(message); else alert(message); }
+  function updateProfile(user){
+    const name = user.user_metadata?.display_name || user.user_metadata?.username || user.email?.split('@')[0] || 'عضو افنكس';
+    const username = user.user_metadata?.username || ('user_' + user.id.replace(/-/g,'').slice(0,12));
+    const h3=document.querySelector('.profile-info h3'); if(h3) h3.textContent=name;
+    const muted=document.querySelector('.profile-info .muted'); if(muted) muted.textContent='@'+username+' · عضو في افنكس';
+    const avatar=document.querySelector('.profile-info .avatar'); if(avatar) avatar.textContent=name.slice(0,1);
+    const mini=document.querySelector('.miniavatar'); if(mini) mini.textContent=name.slice(0,1);
+  }
+  async function ensureProfile(user){
+    const username = user.user_metadata?.username || ('user_' + user.id.replace(/-/g,'').slice(0,12));
+    const display_name = user.user_metadata?.display_name || user.email?.split('@')[0] || 'عضو افنكس';
+    const {error}=await client.from('profiles').upsert({id:user.id,username,display_name},{onConflict:'id'});
+    if(error) throw error;
+    updateProfile(user);
+  }
+  window.setAuthMode=function(mode,btn){
+    authMethod=mode;
+    document.querySelectorAll('.auth-tab').forEach(b=>b.classList.toggle('active',b===btn));
+    const phone=document.getElementById('phoneField'), email=document.getElementById('emailField');
+    if(phone) phone.hidden=mode!=='phone'; if(email) email.hidden=mode!=='email';
+    const heading=document.getElementById('accountHeading'); if(heading) heading.textContent=mode==='phone'?'التسجيل برقم الهاتف':'التسجيل بالبريد الإلكتروني';
+    const action=document.querySelector('.account-submit'); if(action) action.textContent=loginMode?'تسجيل الدخول':'إنشاء حساب';
+    const note=document.getElementById('avnexAuthNote'); if(note) note.textContent=mode==='phone'?'تسجيل الهاتف يحتاج تفعيل مزود SMS داخل Supabase. استخدم البريد الإلكتروني حالياً.':'يتم إنشاء الحساب وتسجيل الدخول عبر Supabase.';
+  };
+  window.toggleAvnexAuthMode=function(){
+    loginMode=!loginMode;
+    const action=document.querySelector('.account-submit'); if(action) action.textContent=loginMode?'تسجيل الدخول':'إنشاء حساب';
+    const heading=document.getElementById('accountHeading'); if(heading) heading.textContent=loginMode?'تسجيل الدخول إلى افنكس':'إنشاء حساب في افنكس';
+    const switcher=document.getElementById('avnexAuthSwitch'); if(switcher) switcher.textContent=loginMode?'ليس لديك حساب؟ إنشاء حساب':'لديك حساب؟ تسجيل الدخول';
+    const name=document.getElementById('accountName'), handle=document.getElementById('accountHandle');
+    if(name) name.parentElement.hidden=loginMode;
+    if(handle) handle.parentElement.hidden=loginMode;
+    const note=document.getElementById('avnexAuthNote'); if(note) note.textContent=loginMode?'أدخل بريدك الإلكتروني وكلمة المرور.':'أنشئ حساباً باستخدام بريد إلكتروني وكلمة مرور.';
+    if(authMethod==='phone' && loginMode) window.setAuthMode('email',document.querySelector('.auth-tab[onclick*="email"]'));
+  };
+  window.demoAccountAction=async function(){
+    if(authMethod!=='email'){notify('تسجيل الهاتف غير مفعّل بعد. اختر البريد الإلكتروني.');return;}
+    const name=(document.getElementById('accountName')?.value||'').trim();
+    const username=(document.getElementById('accountHandle')?.value||'').trim().replace(/^@/,'').toLowerCase();
+    const email=(document.getElementById('accountEmail')?.value||'').trim().toLowerCase();
+    const password=document.getElementById('accountPassword')?.value||'';
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){notify('أدخل بريداً إلكترونياً صحيحاً.');return;}
+    if(password.length<8){notify('كلمة المرور يجب أن تكون 8 أحرف على الأقل.');return;}
+    if(!loginMode && (name.length<2 || !/^[a-z0-9_.]{3,24}$/.test(username))){notify('أدخل اسم عرض واسم مستخدم من 3 إلى 24 حرفاً إنجليزياً أو أرقاماً أو _ أو .');return;}
+    const action=document.querySelector('.account-submit'); if(action) action.disabled=true;
+    try{
+      if(loginMode){
+        const {data,error}=await client.auth.signInWithPassword({email,password});
+        if(error) throw error;
+        await ensureProfile(data.user);
+        notify('تم تسجيل الدخول إلى AVNEX بنجاح.');
+      }else{
+        const {data,error}=await client.auth.signUp({email,password,options:{data:{display_name:name,username}}});
+        if(error) throw error;
+        if(data.session && data.user){await ensureProfile(data.user);notify('تم إنشاء حسابك وتسجيل الدخول.');}
+        else notify('تم إنشاء الحساب. افتح بريدك الإلكتروني واضغط رابط التأكيد، ثم سجّل الدخول.');
+      }
+      if(typeof window.closeAccount==='function') window.closeAccount();
+    }catch(error){
+      console.error('AVNEX auth error:',error);
+      notify(error.message==='Invalid login credentials'?'البريد الإلكتروني أو كلمة المرور غير صحيحة.':(error.message||'تعذر إكمال العملية. تحقق من إعدادات Supabase.'));
+    }finally{if(action) action.disabled=false;}
+  };
+
+  client.auth.getSession().then(async({data})=>{if(data.session?.user){try{await ensureProfile(data.session.user);}catch(e){console.warn('Profile sync:',e.message);}}});
+  client.auth.onAuthStateChange((_event,session)=>{if(session?.user) updateProfile(session.user);});
+
+  // Upload selected videos to the Supabase Storage bucket, then save metadata.
+  const picker=document.getElementById('videoFileInput');
+  if(picker) picker.addEventListener('change',async function(){
+    const file=this.files?.[0]; if(!file) return;
+    const {data:{session}}=await client.auth.getSession();
+    if(!session?.user){notify('سجّل الدخول أولاً قبل رفع الفيديو.');return;}
+    const allowed=['video/mp4','video/webm','video/quicktime'];
+    if(!allowed.includes(file.type)){notify('الصيغ المدعومة: MP4 وWebM وMOV.');return;}
+    if(file.size>100*1024*1024){notify('حجم الفيديو الأقصى 100 ميجابايت.');return;}
+    try{
+      notify('جارٍ رفع الفيديو إلى AVNEX…');
+      const ext=file.name.split('.').pop().toLowerCase();
+      const path=session.user.id+'/'+crypto.randomUUID()+'.'+ext;
+      const {error:uploadError}=await client.storage.from('videos').upload(path,file,{contentType:file.type,upsert:false});
+      if(uploadError) throw uploadError;
+      const {data:publicData}=client.storage.from('videos').getPublicUrl(path);
+      const caption=prompt('اكتب وصف الفيديو (اختياري):')||'';
+      const {error:insertError}=await client.from('videos').insert({user_id:session.user.id,caption:caption.slice(0,500),video_url:publicData.publicUrl});
+      if(insertError) throw insertError;
+      notify('تم رفع الفيديو ونشره في قاعدة بيانات AVNEX.');
+    }catch(error){console.error('AVNEX upload error:',error);notify(error.message||'تعذر رفع الفيديو. تحقق من سياسات التخزين والجداول.');}
+    finally{this.value='';}
+  });
+})();
+</script>
+
 </body>
 </html>
