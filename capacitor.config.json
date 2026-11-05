@@ -1,0 +1,7 @@
+{
+  "appId": "com.avnex.social",
+  "appName": "AVNEX - افنكس",
+  "webDir": "public",
+  "server": { "androidScheme": "https" },
+  "plugins": { "SplashScreen": { "launchShowDuration": 1800, "backgroundColor": "#10131b", "showSpinner": false } }
+}
