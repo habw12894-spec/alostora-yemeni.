@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "android:add": "cap add android",
+    "android:build": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -16,9 +20,14 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
-    "multer": "^2.0.0"
+    "multer": "^2.0.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/android": "^6.2.0"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
   }
 }
